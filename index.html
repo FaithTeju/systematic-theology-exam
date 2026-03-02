@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Systematic Theology I — Examination Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1e3c;
+  --navy-mid: #1a3060;
+  --navy-light: #2a4a8a;
+  --gold: #b8912a;
+  --gold-light: #d4a83a;
+  --gold-pale: #f5edda;
+  --cream: #faf7f2;
+  --parchment: #f0ead8;
+  --text: #1a1a2e;
+  --muted: #5a5a72;
+  --border: #d0c8b0;
+  --correct: #2d6a4f;
+  --error: #9b2226;
+  --input-bg: #fffdf8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Background Texture */
+.bg-texture {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(184,145,42,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 90%, rgba(42,74,138,0.3) 0%, transparent 60%),
+    var(--navy);
+}
+
+/* Landing Page */
+.landing-container {
+  position: relative; z-index: 5;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+
+.landing-header {
+  text-align: center; margin-bottom: 48px;
+}
+
+.school-label {
+  font-family: 'Jost', sans-serif;
+  font-weight: 500; font-size: 11px; letter-spacing: 4px;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.exam-title {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 600; color: var(--cream);
+  line-height: 1.1; margin-bottom: 8px;
+}
+
+.exam-subtitle {
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 400; font-style: italic;
+  color: var(--gold-light);
+}
+
+.landing-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.portal-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(184,145,42,0.3);
+  border-radius: 8px;
+  padding: 32px 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.portal-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+}
+
+.portal-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.portal-title {
+  font-family: 'Jost', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+
+.portal-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+}
+
+/* Header */
+.site-header {
+  position: relative; z-index: 10;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  border-bottom: 2px solid var(--gold);
+  padding: 48px 24px 40px;
+  text-align: center;
+}
+
+.site-header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+}
+
+.header-meta {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;
+  font-family: 'Jost', sans-serif; font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 20px;
+}
+
+.header-meta span { display: flex; align-items: center; gap: 6px; }
+.header-meta strong { color: rgba(255,255,255,0.9); }
+
+/* Progress Bar */
+.progress-wrap {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--navy-mid);
+  border-bottom: 1px solid rgba(184,145,42,0.3);
+  padding: 10px 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+
+.progress-label {
+  font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 500;
+  color: var(--gold); white-space: nowrap;
+}
+
+.progress-bar-bg {
+  flex: 1; height: 6px; background: rgba(255,255,255,0.1);
+  border-radius: 3px; overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 3px; transition: width 0.4s ease;
+}
+
+.progress-pct {
+  font-family: 'Jost', sans-serif; font-size: 12px;
+  color: rgba(255,255,255,0.5); min-width: 36px; text-align: right;
+}
+
+/* Main Container */
+.container {
+  position: relative; z-index: 5;
+  max-width: 860px; margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* Info Card */
+.info-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.info-card h2 {
+  font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 3px;
+  font-weight: 600; color: var(--muted); text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media(max-width: 500px) { .info-grid { grid-template-columns: 1fr; } }
+
+.info-field label {
+  display: block; font-family: 'Jost', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 6px;
+}
+
+.info-field input {
+  width: 100%; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--input-bg); font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.info-field input:focus { outline: none; border-color: var(--gold); }
+
+/* Instructions */
+.instructions {
+  background: var(--navy);
+  border: 1px solid rgba(184,145,42,0.4);
+  border-left: 4px solid var(--gold);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 40px;
+}
+
+.instructions h3 {
+  font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 3px;
+  font-weight: 600; color: var(--gold); text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.instructions ol {
+  padding-left: 20px; color: rgba(255,255,255,0.75);
+  font-size: 15px; line-height: 1.9;
+}
+
+.instructions li.warn { color: #e5a0a0; font-weight: 500; }
+
+/* Section Headers */
+.section-block { margin-bottom: 48px; }
+
+.section-header {
+  background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
+  border: 1px solid rgba(184,145,42,0.4);
+  border-left: 5px solid var(--gold);
+  border-radius: 4px;
+  padding: 20px 28px;
+  margin-bottom: 8px;
+}
+
+.section-header .sec-eyebrow {
+  font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 4px;
+  font-weight: 600; color: var(--gold); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.section-header h2 {
+  font-family: 'Cormorant Garamond', serif; font-size: 26px;
+  font-weight: 600; color: var(--cream);
+}
+
+.marks-badge {
+  display: inline-block; margin-top: 8px;
+  background: rgba(184,145,42,0.2); border: 1px solid rgba(184,145,42,0.5);
+  color: var(--gold-light);
+  font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 500;
+  padding: 3px 12px; border-radius: 20px;
+}
+
+.section-instruction {
+  font-family: 'Jost', sans-serif; font-size: 13px; font-style: italic;
+  color: rgba(255,255,255,0.5); padding: 10px 28px 20px;
+}
+
+/* Part Headers */
+.part-header {
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--gold-light);
+  padding: 14px 20px;
+  margin: 24px 0 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+}
+
+.part-header h3 {
+  font-family: 'Jost', sans-serif; font-size: 14px;
+  font-weight: 600; color: rgba(255,255,255,0.85);
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+
+.part-marks {
+  font-family: 'Jost', sans-serif; font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+.part-instruction {
+  font-family: 'Jost', sans-serif; font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  padding: 0 20px 16px;
+  font-style: italic;
+}
+
+/* Question Cards */
+.question-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+
+.question-card.answered {
+  border-left: 4px solid var(--correct);
+}
+
+.q-number {
+  font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 2px;
+  font-weight: 600; color: var(--muted); text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.q-text {
+  font-size: 17px; line-height: 1.7;
+  color: var(--text); margin-bottom: 18px;
+}
+
+/* Multiple Choice */
+.mc-options {
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.mc-option {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.02);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mc-option:hover {
+  background: rgba(184,145,42,0.05);
+  border-color: var(--gold-light);
+}
+
+.mc-option input[type="radio"] {
+  margin-top: 4px;
+}
+
+.option-text {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* True/False */
+.tf-options {
+  display: flex; gap: 12px;
+  justify-content: center;
+}
+
+.tf-btn {
+  flex: 1;
+  max-width: 140px;
+  padding: 12px 24px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: white;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tf-btn:hover {
+  border-color: var(--gold);
+  background: rgba(184,145,42,0.05);
+}
+
+.tf-btn.selected-true {
+  background: var(--correct);
+  border-color: var(--correct);
+  color: white;
+}
+
+.tf-btn.selected-false {
+  background: var(--error);
+  border-color: var(--error);
+  color: white;
+}
+
+/* Matching */
+.matching-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px;
+  gap: 12px;
+  align-items: center;
+}
+
+.match-num {
+  font-family: 'Jost', sans-serif;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.match-term {
+  font-size: 15px;
+}
+
+.match-select {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: white;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+}
+
+/* Textarea Inputs */
+.essay-input, .scenario-input, .doctrines-input {
+  width: 100%;
+  min-height: 160px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: white;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text);
+  resize: vertical;
+}
+
+.scenario-input { min-height: 120px; }
+.doctrines-input { min-height: 100px; }
+
+.essay-input:focus, .scenario-input:focus, .doctrines-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.word-target {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* Scenario Blocks */
+.scenario-block {
+  margin-bottom: 20px;
+}
+
+.label-row {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+/* Submit Section */
+.submit-section {
+  background: var(--navy);
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  padding: 32px;
+  text-align: center;
+  margin-top: 48px;
+}
+
+.submit-section h3 {
+  font-family: 'Jost', sans-serif;
+  font-size: 18px;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.submit-section p {
+  color: rgba(255,255,255,0.7);
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.completion-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(184,145,42,0.3);
+  border-radius: 20px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+}
+
+.completion-badge.ready {
+  background: rgba(45,106,79,0.2);
+  border-color: var(--correct);
+  color: #7bc9a1;
+}
+
+.btn-submit {
+  margin-top: 24px;
+  padding: 14px 48px;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--navy);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184,145,42,0.4);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success Screen */
+.success-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--navy);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+
+.success-screen.show {
+  display: flex;
+  flex-direction: column;
+}
+
+.success-icon {
+  font-size: 80px;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+.success-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 16px;
+}
+
+.success-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 32px;
+}
+
+.success-verse {
+  max-width: 600px;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--gold-light);
+  line-height: 1.8;
+}
+
+/* Instructor Login */
+.login-card {
+  max-width: 400px;
+  margin: 80px auto;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  padding: 32px;
+}
+
+.login-card h2 {
+  font-family: 'Jost', sans-serif;
+  font-size: 20px;
+  color: var(--text);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.login-field {
+  margin-bottom: 20px;
+}
+
+.login-field label {
+  display: block;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.login-field input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--navy);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184,145,42,0.4);
+}
+
+.btn-back {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 24px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Instructor Dashboard */
+.submissions-list {
+  display: grid;
+  gap: 16px;
+}
+
+.submission-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submission-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.submission-card.graded {
+  border-left: 4px solid var(--correct);
+}
+
+.submission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.submission-name {
+  font-family: 'Jost', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.submission-date {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.submission-stats {
+  display: flex;
+  gap: 20px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Grading Interface */
+.grading-panel {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.grading-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+}
+
+.student-info {
+  font-family: 'Jost', sans-serif;
+}
+
+.student-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.student-date {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.score-input-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-input-group label {
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.score-input {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  text-align: center;
+}
+
+.answer-display {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.feedback-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.btn-save-grades {
+  padding: 12px 32px;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--correct);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-save-grades:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45,106,79,0.4);
+}
+
+/* Results View */
+.results-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--gold);
+  border-radius: 4px;
+  padding: 32px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.results-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.results-score {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 16px 0;
+}
+
+.results-grade {
+  font-family: 'Jost', sans-serif;
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.results-breakdown {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid var(--border);
+}
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+}
+
+.score-label {
+  color: var(--muted);
+}
+
+.score-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,30,60,0.95);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-overlay.show {
+  display: flex;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(184,145,42,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--navy);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 4px;
+  border-left: 4px solid var(--gold);
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.error {
+  border-left-color: var(--error);
+}
+
+.toast.success {
+  border-left-color: var(--correct);
+}
+</style>
+</head>
+<body>
+<div class="bg-texture"></div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- Landing Screen -->
+<div class="screen active" id="screen-landing">
+  <div class="landing-container">
+    <div class="landing-header">
+      <div class="school-label">Theological Education Portal</div>
+      <h1 class="exam-title">Systematic Theology I</h1>
+      <p class="exam-subtitle">Prolegomena & Bibliology — End-of-Term Examination</p>
+    </div>
+    <div class="landing-cards">
+      <div class="portal-card" onclick="goTo('screen-student')">
+        <div class="portal-icon">📖</div>
+        <div class="portal-title">Student Portal</div>
+        <p class="portal-desc">Take the examination</p>
+      </div>
+      <div class="portal-card" onclick="goTo('screen-instructor-login')">
+        <div class="portal-icon">✒️</div>
+        <div class="portal-title">Instructor Portal</div>
+        <p class="portal-desc">Grade submissions</p>
+      </div>
+      <div class="portal-card" onclick="goTo('screen-results')">
+        <div class="portal-icon">🎓</div>
+        <div class="portal-title">Results Portal</div>
+        <p class="portal-desc">View your score</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Student Exam Screen -->
+<div class="screen" id="screen-student">
+  <div class="site-header">
+    <div class="school-label">Systematic Theology I</div>
+    <h1 class="exam-title">End-of-Term Examination</h1>
+    <p class="exam-subtitle">Prolegomena & Bibliology</p>
+    <div class="header-meta">
+      <span><strong>Duration:</strong> 3 hours</span>
+      <span><strong>Total Marks:</strong> 100</span>
+      <span><strong>Sections:</strong> A (30) | B (40) | C (30)</span>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <span class="progress-label">PROGRESS</span>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+
+  <div class="container">
+    <!-- Student Info -->
+    <div class="info-card">
+      <h2>Student Information</h2>
+      <div class="info-grid">
+        <div class="info-field">
+          <label>Full Name *</label>
+          <input type="text" id="s_name" required>
+        </div>
+        <div class="info-field">
+          <label>Student ID</label>
+          <input type="text" id="s_id">
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+      <h3>Instructions</h3>
+      <ol>
+        <li>Answer <strong>ALL questions</strong> in ALL sections.</li>
+        <li>Section A is objective and will be auto-scored. Sections B & C require written responses and will be manually graded by your instructor.</li>
+        <li>Write clearly and concisely. Quality is valued over quantity.</li>
+        <li>Support your answers with relevant Scripture references where appropriate.</li>
+        <li class="warn">Once you submit, you cannot make changes. Review carefully before submitting.</li>
+      </ol>
+    </div>
+
+    <!-- SECTION A -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="sec-eyebrow">Section A</div>
+        <h2>Objective Questions</h2>
+        <div class="marks-badge">30 marks — Attempt ALL questions</div>
+      </div>
+
+      <!-- Part A1 - Multiple Choice -->
+      <div class="part-header">
+        <h3>PART A1 — Multiple Choice</h3>
+        <span class="part-marks">15 marks  |  1 mark each</span>
+      </div>
+      <p class="part-instruction">Select the best answer for each question.</p>
+
+      <div id="mcQuestions"></div>
+
+      <!-- Part A2 - True/False -->
+      <div class="part-header">
+        <h3>PART A2 — True or False</h3>
+        <span class="part-marks">10 marks  |  1 mark each</span>
+      </div>
+      <p class="part-instruction">Click TRUE or FALSE for each statement.</p>
+
+      <div id="tfQuestions"></div>
+
+      <!-- Part A3 - Matching -->
+      <div class="part-header">
+        <h3>PART A3 — Matching</h3>
+        <span class="part-marks">5 marks  |  1 mark each</span>
+      </div>
+      <p class="part-instruction">Match each theological term with its correct definition.</p>
+
+      <div class="question-card">
+        <div class="matching-grid">
+          <div class="match-row">
+            <div class="match-num">26.</div>
+            <div class="match-term">Prolegomena</div>
+            <select class="match-select" id="m1" onchange="updateProgress()">
+              <option value="">—</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+          <div class="match-row">
+            <div class="match-num">27.</div>
+            <div class="match-term">Verbal Plenary Inspiration</div>
+            <select class="match-select" id="m2" onchange="updateProgress()">
+              <option value="">—</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+          <div class="match-row">
+            <div class="match-num">28.</div>
+            <div class="match-term">Inerrancy</div>
+            <select class="match-select" id="m3" onchange="updateProgress()">
+              <option value="">—</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+          <div class="match-row">
+            <div class="match-num">29.</div>
+            <div class="match-term">Sufficiency of Scripture</div>
+            <select class="match-select" id="m4" onchange="updateProgress()">
+              <option value="">—</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+          <div class="match-row">
+            <div class="match-num">30.</div>
+            <div class="match-term">Closed Canon</div>
+            <select class="match-select" id="m5" onchange="updateProgress()">
+              <option value="">—</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.02); border-radius: 4px; font-size: 14px; line-height: 1.8;">
+          <strong>Definitions:</strong><br>
+          <strong>A.</strong> The belief that the original books of Scripture were preserved through miraculous protection<br>
+          <strong>B.</strong> Scripture contains all that is necessary for salvation and godly living<br>
+          <strong>C.</strong> Introductory matters and foundational principles that precede the main study<br>
+          <strong>D.</strong> Scripture is without error in its original manuscripts<br>
+          <strong>E.</strong> Every word of the original Scripture is God-breathed<br>
+          <strong>F.</strong> No new books can be added to Scripture; no new binding doctrine can be revealed
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION B -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="sec-eyebrow">Section B</div>
+        <h2>Theory Questions</h2>
+        <div class="marks-badge">40 marks — Answer ALL questions</div>
+      </div>
+
+      <div class="part-header">
+        <h3>PART B1 — Short Answer</h3>
+        <span class="part-marks">20 marks  |  4 marks each</span>
+      </div>
+      <p class="part-instruction">Write concise, well-structured answers. Aim for 80–120 words per response.</p>
+
+      <div class="question-card" id="card-q31">
+        <div class="q-number">Question 31 — (4 marks)</div>
+        <div class="q-text">Explain the difference between general revelation and special revelation. Give one biblical example of each.</div>
+        <textarea class="essay-input" id="q31" oninput="markAnsweredText('card-q31','q31');updateProgress()" placeholder="Write your answer here..."></textarea>
+        <div class="word-target">Target: 80–120 words</div>
+      </div>
+
+      <div class="question-card" id="card-q32">
+        <div class="q-number">Question 32 — (4 marks)</div>
+        <div class="q-text">What does the doctrine of "verbal plenary inspiration" mean? Why is each word important in this phrase?</div>
+        <textarea class="essay-input" id="q32" oninput="markAnsweredText('card-q32','q32');updateProgress()" placeholder="Write your answer here..."></textarea>
+        <div class="word-target">Target: 80–120 words</div>
+      </div>
+
+      <div class="question-card" id="card-q33">
+        <div class="q-number">Question 33 — (4 marks)</div>
+        <div class="q-text">Define inerrancy. Why do we say inerrancy applies to the original manuscripts (autographs) rather than all translations?</div>
+        <textarea class="essay-input" id="q33" oninput="markAnsweredText('card-q33','q33');updateProgress()" placeholder="Write your answer here..."></textarea>
+        <div class="word-target">Target: 80–120 words</div>
+      </div>
+
+      <div class="question-card" id="card-q34">
+        <div class="q-number">Question 34 — (4 marks)</div>
+        <div class="q-text">What does it mean to say the canon is "closed"? Does this mean God no longer speaks to His people today? Explain.</div>
+        <textarea class="essay-input" id="q34" oninput="markAnsweredText('card-q34','q34');updateProgress()" placeholder="Write your answer here..."></textarea>
+        <div class="word-target">Target: 80–120 words</div>
+      </div>
+
+      <div class="question-card" id="card-q35">
+        <div class="q-number">Question 35 — (4 marks)</div>
+        <div class="q-text">How did the church recognize which books belonged in the biblical canon? Did the church create the canon or recognize it? Explain the difference.</div>
+        <textarea class="essay-input" id="q35" oninput="markAnsweredText('card-q35','q35');updateProgress()" placeholder="Write your answer here..."></textarea>
+        <div class="word-target">Target: 80–120 words</div>
+      </div>
+
+      <div class="part-header">
+        <h3>PART B2 — Essay Questions</h3>
+        <span class="part-marks">20 marks  |  10 marks each</span>
+      </div>
+      <p class="part-instruction">Answer BOTH questions. Demonstrate understanding of key doctrines, cite relevant Scriptures, and construct a clear theological argument. Aim for 200–300 words per response.</p>
+
+      <div class="question-card" id="card-q36">
+        <div class="q-number">Question 36 — (10 marks)</div>
+        <div class="q-text">Discuss the sufficiency and authority of Scripture. Why do these doctrines matter for the life of the church and individual believers today? Support your answer with at least two Scripture references.</div>
+        <textarea class="essay-input" id="q36" oninput="markAnsweredText('card-q36','q36');updateProgress()" placeholder="Write your essay here..." style="min-height: 200px;"></textarea>
+        <div class="word-target">Target: 200–300 words</div>
+      </div>
+
+      <div class="question-card" id="card-q37">
+        <div class="q-number">Question 37 — (10 marks)</div>
+        <div class="q-text">Explain why divine revelation (both general and special) is the foundation of all systematic theology. What would be lost if we tried to do theology without a robust doctrine of Scripture?</div>
+        <textarea class="essay-input" id="q37" oninput="markAnsweredText('card-q37','q37');updateProgress()" placeholder="Write your essay here..." style="min-height: 200px;"></textarea>
+        <div class="word-target">Target: 200–300 words</div>
+      </div>
+    </div>
+
+    <!-- SECTION C -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="sec-eyebrow">Section C</div>
+        <h2>Practical Application</h2>
+        <div class="marks-badge">30 marks — Answer ALL questions</div>
+      </div>
+
+      <div class="part-header">
+        <h3>PART C1 — Pastoral Scenarios</h3>
+        <span class="part-marks">15 marks  |  5 marks each</span>
+      </div>
+      <p class="part-instruction">For each scenario, identify the doctrines at stake and provide a pastoral response grounded in Scripture and sound theology.</p>
+
+      <div class="question-card" id="card-q38">
+        <div class="q-number">Question 38 — (5 marks)</div>
+        <div class="q-text"><strong>Scenario:</strong> A church member tells you, "God spoke to me in a dream and told me to leave my spouse. This is just as authoritative as anything Paul wrote, because it came directly from God."</div>
+        <div class="scenario-block">
+          <div class="label-row">What doctrines are at stake here?</div>
+          <textarea class="scenario-input" id="q38a" oninput="updateProgress()" placeholder="Identify the key doctrines..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">How would you respond pastorally?</div>
+          <textarea class="scenario-input" id="q38b" oninput="markAnsweredText('card-q38','q38b');updateProgress()" placeholder="Provide your pastoral response..."></textarea>
+        </div>
+      </div>
+
+      <div class="question-card" id="card-q39">
+        <div class="q-number">Question 39 — (5 marks)</div>
+        <div class="q-text"><strong>Scenario:</strong> A visiting preacher teaches that believers must keep the Sabbath, follow dietary laws, and celebrate Old Testament festivals in order to be saved. He claims this "new gospel" was revealed to him by an angel.</div>
+        <div class="scenario-block">
+          <div class="label-row">What doctrines are being violated?</div>
+          <textarea class="scenario-input" id="q39a" oninput="updateProgress()" placeholder="Identify the doctrinal violations..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">How should you address this with your congregation?</div>
+          <textarea class="scenario-input" id="q39b" oninput="markAnsweredText('card-q39','q39b');updateProgress()" placeholder="How would you address this..."></textarea>
+        </div>
+      </div>
+
+      <div class="question-card" id="card-q40">
+        <div class="q-number">Question 40 — (5 marks)</div>
+        <div class="q-text"><strong>Scenario:</strong> A university student challenges you: "The church just picked and chose which books they liked at the Council of Nicaea. The Bible is a man-made collection, not divinely inspired."</div>
+        <div class="scenario-block">
+          <div class="label-row">What is the core challenge here?</div>
+          <textarea class="scenario-input" id="q40a" oninput="updateProgress()" placeholder="Identify the core challenge..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">How would you respond to this skeptic?</div>
+          <textarea class="scenario-input" id="q40b" oninput="markAnsweredText('card-q40','q40b');updateProgress()" placeholder="Your response..."></textarea>
+        </div>
+      </div>
+
+      <div class="part-header">
+        <h3>PART C2 — Case Study</h3>
+        <span class="part-marks">15 marks</span>
+      </div>
+
+      <div style="background: rgba(184,145,42,0.1); border: 1px solid rgba(184,145,42,0.3); border-radius: 4px; padding: 20px; margin-bottom: 24px; font-size: 15px; line-height: 1.8;">
+        <strong>Case Study:</strong> Pastor Emmanuel leads a small church in a community where a popular prophet has emerged, claiming to receive "new revelations" that contradict key biblical doctrines. Many church members are confused and some have begun attending the prophet's meetings. The prophet claims his revelations are equal to Scripture because "the Spirit is still speaking today."
+      </div>
+
+      <div class="question-card" id="card-q41">
+        <div class="q-number">Question 41 — (6 marks)</div>
+        <div class="q-text">Identify and explain THREE specific doctrinal issues Pastor Emmanuel needs to address with his congregation.</div>
+        <div class="scenario-block">
+          <div class="label-row">Doctrinal Issue 1</div>
+          <textarea class="doctrines-input" id="q41a" oninput="updateProgress()" placeholder="Name and explain the first issue..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">Doctrinal Issue 2</div>
+          <textarea class="doctrines-input" id="q41b" oninput="updateProgress()" placeholder="Name and explain the second issue..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">Doctrinal Issue 3</div>
+          <textarea class="doctrines-input" id="q41c" oninput="markAnsweredText('card-q41','q41c');updateProgress()" placeholder="Name and explain the third issue..."></textarea>
+        </div>
+      </div>
+
+      <div class="question-card" id="card-q42">
+        <div class="q-number">Question 42 — (6 marks)</div>
+        <div class="q-text">Which Scripture passages from this term's study would you direct Pastor Emmanuel to use when teaching his congregation? Give at least THREE references and explain why each is relevant to the situation.</div>
+        <div class="scenario-block">
+          <div class="label-row">Reference 1 — passage & relevance</div>
+          <textarea class="doctrines-input" id="q42a" oninput="updateProgress()" placeholder="Reference and explain..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">Reference 2 — passage & relevance</div>
+          <textarea class="doctrines-input" id="q42b" oninput="updateProgress()" placeholder="Reference and explain..."></textarea>
+        </div>
+        <div class="scenario-block">
+          <div class="label-row">Reference 3 — passage & relevance</div>
+          <textarea class="doctrines-input" id="q42c" oninput="markAnsweredText('card-q42','q42c');updateProgress()" placeholder="Reference and explain..."></textarea>
+        </div>
+      </div>
+
+      <div class="question-card" id="card-q43">
+        <div class="q-number">Question 43 — Personal Reflection (3 marks)</div>
+        <div class="q-text">Why does it matter — for your own life and future ministry — that you are firmly grounded in the doctrine of Scripture? Identify one area from this term that most challenged or changed your thinking, and explain how you will apply it going forward.</div>
+        <textarea class="essay-input" id="q43" oninput="markAnsweredText('card-q43','q43');updateProgress()" placeholder="Write your personal reflection here. Be honest and specific..." style="min-height: 180px;"></textarea>
+        <div class="word-target">Target: 150–200 words</div>
+      </div>
+    </div>
+
+    <!-- Submit Section -->
+    <div class="submit-section">
+      <h3>Ready to Submit?</h3>
+      <p>Review your answers before submitting. Once submitted, you will not be able to make changes.<br>Ensure your name and student ID are filled in above.</p>
+      <div class="completion-badge" id="completionBadge">0 of 43 questions answered</div>
+      <br><br>
+      <button class="btn-submit" onclick="handleSubmit()">Submit Examination</button>
+    </div>
+  </div>
+</div>
+
+<!-- Instructor Login Screen -->
+<div class="screen" id="screen-instructor-login">
+  <div class="container">
+    <div class="login-card">
+      <h2>Instructor Login</h2>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="teacherPassword" onkeypress="if(event.key==='Enter') teacherLogin()">
+      </div>
+      <button class="btn-login" onclick="teacherLogin()">Access Portal</button>
+      <button class="btn-back" onclick="goTo('screen-landing')">← Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- Instructor Dashboard Screen -->
+<div class="screen" id="screen-instructor">
+  <div class="site-header">
+    <div class="school-label">Instructor Portal</div>
+    <h1 class="exam-title">Grade Submissions</h1>
+    <p class="exam-subtitle">Systematic Theology I Examination</p>
+  </div>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 style="font-family: 'Jost', sans-serif; font-size: 20px; color: var(--cream);">All Submissions</h2>
+      <button class="btn-back" onclick="goTo('screen-landing')" style="margin: 0;">Logout</button>
+    </div>
+    <div class="submissions-list" id="submissionsList"></div>
+  </div>
+</div>
+
+<!-- Grading Screen -->
+<div class="screen" id="screen-grading">
+  <div class="site-header">
+    <div class="school-label">Instructor Portal</div>
+    <h1 class="exam-title">Grading Panel</h1>
+  </div>
+  <div class="container">
+    <button class="btn-back" onclick="goTo('screen-instructor')" style="margin-bottom: 24px;">← Back to Submissions</button>
+    <div id="gradingContent"></div>
+  </div>
+</div>
+
+<!-- Results Login Screen -->
+<div class="screen" id="screen-results">
+  <div class="container">
+    <div class="login-card">
+      <h2>View Your Results</h2>
+      <div class="login-field">
+        <label>Enter Your Full Name</label>
+        <input type="text" id="resultsName" onkeypress="if(event.key==='Enter') loadResults()">
+      </div>
+      <button class="btn-login" onclick="loadResults()">View Results</button>
+      <button class="btn-back" onclick="goTo('screen-landing')">← Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- Results Display Screen -->
+<div class="screen" id="screen-results-display">
+  <div class="container">
+    <button class="btn-back" onclick="goTo('screen-landing')" style="margin-bottom: 24px; background: var(--cream); color: var(--navy);">← Back to Home</button>
+    <div id="resultsContent"></div>
+  </div>
+</div>
+
+<!-- Success Screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✝</div>
+  <div class="success-title">Examination Submitted</div>
+  <div class="success-sub">Your answers have been recorded. Well done for completing this examination.</div>
+  <div class="success-verse">"Study to show yourself approved unto God, a workman that need not be ashamed,<br>rightly dividing the word of truth." — 2 Timothy 2:15</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Supabase Configuration
+const SUPABASE_URL = 'https://znducxvaeihkqkfcaffe.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZHVjeHZhZWloa3FrZmNhZmZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDE1MjIsImV4cCI6MjA4ODAxNzUyMn0.VOOvTtBYbEgcHV9Djxkz60SRzV_geqegtdJ2r1_qC_o';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const TEACHER_PW = 'pastor123';
+const TOTAL_Q = 43;
+
+// Navigation
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0, 0);
+  
+  if (screenId === 'screen-student') {
+    init();
+  }
+}
+
+// UI Helpers
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Answer Keys
+const mcAnswerKey = {
+  1: 'B', 2: 'A', 3: 'D', 4: 'A', 5: 'B',
+  6: 'D', 7: 'B', 8: 'C', 9: 'D', 10: 'C',
+  11: 'A', 12: 'D', 13: 'C', 14: 'B', 15: 'C'
+};
+
+const tfAnswerKey = {
+  16: false, 17: true, 18: false, 19: true, 20: false,
+  21: true, 22: false, 23: true, 24: false, 25: true
+};
+
+const matchAnswerKey = {
+  m1: 'C', m2: 'E', m3: 'D', m4: 'B', m5: 'F'
+};
+
+// Multiple Choice Questions Data
+const mcQuestions = [
+  {
+    num: 1,
+    text: 'Which type of revelation is described in Romans 1:18–20 as rendering all humanity accountable to God?',
+    options: [
+      'A. Special Revelation through the written Word',
+      'B. General Revelation through creation and conscience',
+      'C. Prophetic Revelation through the apostles',
+      'D. Salvific Revelation through Jesus Christ alone'
+    ]
+  },
+  {
+    num: 2,
+    text: 'What does the doctrine of "verbal plenary inspiration" affirm?',
+    options: [
+      'A. Every single word of Scripture, in its entirety, is God-breathed',
+      'B. Only the spiritual concepts of Scripture are inspired, not the actual words',
+      'C. Only the New Testament books are fully inspired by God',
+      'D. Inspiration was limited to the original twelve apostles'
+    ]
+  },
+  {
+    num: 3,
+    text: 'According to 2 Timothy 3:16–17, Scripture being "God-breathed" primarily establishes which of the following?',
+    options: [
+      'A. The emotional and inspirational power of biblical narratives',
+      'B. The scientific accuracy of the Genesis creation account',
+      'C. The superiority of the New Testament over the Old Testament',
+      'D. The divine origin and inherent authority of all Scripture'
+    ]
+  },
+  {
+    num: 4,
+    text: 'The sufficiency of Scripture means that:',
+    options: [
+      'A. Believers need no further canonical Scripture or new doctrine for salvation and godly living',
+      'B. The Bible answers every scientific and historical question imaginable',
+      'C. Church tradition carries equal authority to Scripture in matters of doctrine',
+      'D. God no longer speaks through the Spirit, visions, or prophecy in any form today'
+    ]
+  },
+  {
+    num: 5,
+    text: 'A believer says: "When God speaks to me through a dream, it is just as authoritative as Paul\'s letters." What is the most biblically accurate response to this claim?',
+    options: [
+      'A. This is correct — personal revelation carries the same binding authority as canonical Scripture',
+      'B. God does still speak through dreams and the Spirit today, but such personal communication does not add new doctrine or carry the authority of canon',
+      'C. God no longer communicates through dreams or visions at all after the apostolic age',
+      'D. Personal revelation only becomes authoritative when confirmed by church elders'
+    ]
+  },
+  {
+    num: 6,
+    text: 'Which of the following best describes the relationship between general revelation and special revelation?',
+    options: [
+      'A. General revelation is sufficient for salvation; special revelation only adds detail',
+      'B. Special revelation completely replaces and overrides general revelation',
+      'C. Both are equal in authority and completeness for the believer',
+      'D. General revelation reveals God\'s existence and accountability; special revelation reveals the way of redemption in Christ'
+    ]
+  },
+  {
+    num: 7,
+    text: 'The doctrine of the closed canon means that:',
+    options: [
+      'A. God has permanently ceased communicating with His people after the apostolic age',
+      'B. No new books can be added to Scripture, and no new binding doctrine can be revealed beyond what the apostles delivered',
+      'C. Prophecy, visions, and the Spirit\'s guidance have no place in the church today',
+      'D. The church decided which books were canonical through democratic voting'
+    ]
+  },
+  {
+    num: 8,
+    text: 'Who ultimately determined which books belonged in the biblical canon?',
+    options: [
+      'A. The Council of Nicaea by majority vote',
+      'B. The Roman Catholic Church under the authority of the Pope',
+      'C. God — the church recognized what He had already inspired and set apart',
+      'D. The apostle Paul through his extensive letter-writing ministry'
+    ]
+  },
+  {
+    num: 9,
+    text: 'A pastor announces that God has shown him a "new gospel" that adds additional conditions to salvation beyond Christ\'s atoning work. Based on Galatians 1:8–9, the correct response is:',
+    options: [
+      'A. Refer the matter to a denominational council for final adjudication',
+      'B. Accept it if it produces genuine fruit and signs in the congregation',
+      'C. Test the prophecy carefully over time before responding',
+      'D. Reject it — even an angelic messenger who alters the gospel stands under divine condemnation'
+    ]
+  },
+  {
+    num: 10,
+    text: 'The doctrine of inerrancy asserts that Scripture:',
+    options: [
+      'A. Was mechanically dictated word-for-word without any human personality or agency',
+      'B. Has been perfectly and flawlessly preserved in every translation',
+      'C. Is without error in its original manuscripts (autographs), in all that it affirms',
+      'D. Contains absolutely no difficult passages, tensions, or apparent contradictions'
+    ]
+  },
+  {
+    num: 11,
+    text: 'What is the theological significance of 1 Peter 1:23–25 for Bibliology?',
+    options: [
+      'A. It affirms the providential preservation of God\'s Word across all generations',
+      'B. It proves the superiority of the New Covenant over the Old Covenant',
+      'C. It limits the relevance of Scripture to Peter\'s original audience',
+      'D. It describes the formal canonization process carried out by the church'
+    ]
+  },
+  {
+    num: 12,
+    text: 'The human authors of Scripture wrote with their own personalities, styles, and vocabularies. This is best explained by which concept?',
+    options: [
+      'A. Partial inspiration — only the moral and spiritual content was divinely guided',
+      'B. Mechanical dictation where God fully overrode human individuality',
+      'C. Post-apostolic editing by early church councils to harmonize diverse styles',
+      'D. Dual authorship — God as ultimate author working through human instruments'
+    ]
+  },
+  {
+    num: 13,
+    text: 'Jude 3 supports the doctrine of a closed canon because it refers to the faith as:',
+    options: [
+      'A. "Continually being revealed by the Holy Spirit to each new age"',
+      'B. "Defined and protected by the authority of apostolic succession"',
+      'C. "Delivered to the saints once for all"',
+      'D. "A living word that grows with each new generation of believers"'
+    ]
+  },
+  {
+    num: 14,
+    text: 'Why is general revelation insufficient to bring a person to salvation?',
+    options: [
+      'A. It was only available before the Fall and is no longer operative today',
+      'B. It reveals God\'s existence and power but not the specific way of redemption through Christ',
+      'C. It is not accessible to people who live in cities and urban environments',
+      'D. It directly contradicts the content of special revelation'
+    ]
+  },
+  {
+    num: 15,
+    text: 'Which passage in 2 Peter most directly addresses how Scripture originated in relation to the Holy Spirit?',
+    options: [
+      'A. 2 Peter 1:3–4',
+      'B. 2 Peter 1:16–18',
+      'C. 2 Peter 1:20–21',
+      'D. 2 Peter 3:14–16'
+    ]
+  }
+];
+
+// True/False Questions Data
+const tfQuestions = [
+  { num: 16, text: 'General revelation provides sufficient information for a person to be saved, apart from special revelation.' },
+  { num: 17, text: 'Verbal plenary inspiration means that every word of the original manuscripts of Scripture is inspired by God.' },
+  { num: 18, text: 'The church council at Nicaea created and determined which books would be included in the Bible.' },
+  { num: 19, text: 'The doctrine of inerrancy applies specifically to the original autographs (manuscripts) of Scripture, not necessarily to all translations.' },
+  { num: 20, text: 'The closed canon means God has completely stopped communicating with His people through the Spirit, prophecy, or vision.' },
+  { num: 21, text: 'Psalm 119 is one of the key texts used to affirm the beauty, completeness, and sufficiency of God\'s written Word.' },
+  { num: 22, text: 'According to 2 Peter 1:20–21, prophecy originated from the human will and imagination of the prophets themselves.' },
+  { num: 23, text: 'The canon being closed means no new books can be added to Scripture and no new binding Christian doctrine can be established — but it does not mean God can no longer speak personally to individuals today.' },
+  { num: 24, text: 'The authority of Scripture is granted to it by the church based on its demonstrated spiritual usefulness across history.' },
+  { num: 25, text: 'Galatians 1:8–9 warns that even an angelic messenger who preaches a different gospel stands under divine condemnation.' }
+];
+
+// State
+const tfState = {};
+
+// Initialize
+function init() {
+  renderMCQuestions();
+  renderTFQuestions();
+  tfQuestions.forEach(q => tfState[q.num] = null);
+}
+
+function renderMCQuestions() {
+  const container = document.getElementById('mcQuestions');
+  mcQuestions.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-q${q.num}`;
+    
+    const optionsHTML = q.options.map((opt, i) => {
+      const letter = opt.charAt(0);
+      return `
+        <label class="mc-option">
+          <input type="radio" name="q${q.num}" value="${letter}" onchange="markAnswered('card-q${q.num}');updateProgress()">
+          <span class="option-text">${opt}</span>
+        </label>
+      `;
+    }).join('');
+    
+    card.innerHTML = `
+      <div class="q-number">Question ${q.num}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="mc-options">
+        ${optionsHTML}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderTFQuestions() {
+  const container = document.getElementById('tfQuestions');
+  tfQuestions.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-tf${q.num}`;
+    card.innerHTML = `
+      <div class="q-number">Question ${q.num}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="tf-options">
+        <button class="tf-btn" id="tf${q.num}_true" onclick="selectTF(${q.num}, true)">TRUE</button>
+        <button class="tf-btn" id="tf${q.num}_false" onclick="selectTF(${q.num}, false)">FALSE</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectTF(num, val) {
+  tfState[num] = val;
+  const tBtn = document.getElementById(`tf${num}_true`);
+  const fBtn = document.getElementById(`tf${num}_false`);
+  tBtn.className = 'tf-btn' + (val === true ? ' selected-true' : '');
+  fBtn.className = 'tf-btn' + (val === false ? ' selected-false' : '');
+  document.getElementById(`card-tf${num}`).classList.add('answered');
+  updateProgress();
+}
+
+function countAnswered() {
+  let count = 0;
+  
+  // MC q1-15
+  for (let i = 1; i <= 15; i++) {
+    if (document.querySelector(`input[name="q${i}"]:checked`)) count++;
+  }
+  
+  // TF q16-25
+  for (let num = 16; num <= 25; num++) {
+    if (tfState[num] !== null) count++;
+  }
+  
+  // Matching (count as 1 if any filled)
+  const mFilled = ['m1','m2','m3','m4','m5'].filter(id => document.getElementById(id).value !== '').length;
+  if (mFilled > 0) count++;
+  
+  // Short answer q31-q35
+  for (let i = 31; i <= 35; i++) {
+    const el = document.getElementById(`q${i}`);
+    if (el && el.value.trim().length > 20) count++;
+  }
+  
+  // Essays q36, q37
+  ['q36','q37'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim().length > 50) count++;
+  });
+  
+  // Scenarios q38, q39, q40 (main textarea b)
+  ['q38b','q39b','q40b'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim().length > 30) count++;
+  });
+  
+  // Case study q41, q42, q43
+  const q41c = document.getElementById('q41c');
+  if (q41c && q41c.value.trim().length > 20) count++;
+  const q42c = document.getElementById('q42c');
+  if (q42c && q42c.value.trim().length > 20) count++;
+  const q43 = document.getElementById('q43');
+  if (q43 && q43.value.trim().length > 50) count++;
+  
+  return count;
+}
+
+function updateProgress() {
+  const count = countAnswered();
+  const pct = Math.round((count / TOTAL_Q) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  
+  const badge = document.getElementById('completionBadge');
+  badge.textContent = `${count} of ${TOTAL_Q} questions answered`;
+  badge.className = count >= TOTAL_Q * 0.9 ? 'completion-badge ready' : 'completion-badge';
+}
+
+function markAnswered(cardId) {
+  document.getElementById(cardId).classList.add('answered');
+}
+
+function markAnsweredText(cardId, inputId) {
+  const el = document.getElementById(inputId);
+  if (el && el.value.trim().length > 20) {
+    document.getElementById(cardId).classList.add('answered');
+  } else {
+    document.getElementById(cardId).classList.remove('answered');
+  }
+}
+
+// Submit
+async function handleSubmit() {
+  const name = document.getElementById('s_name').value.trim();
+  if (!name) {
+    showToast('Please enter your full name before submitting.', 'error');
+    document.getElementById('s_name').focus();
+    return;
+  }
+  
+  const count = countAnswered();
+  if (count < 20) {
+    const go = confirm(`You have only answered ${count} of ${TOTAL_Q} questions. Are you sure you want to submit?`);
+    if (!go) return;
+  }
+  
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+  showLoading(true);
+  
+  try {
+    // Gather MC answers
+    const mcAnswers = {};
+    let mcScore = 0;
+    for (let i = 1; i <= 15; i++) {
+      const sel = document.querySelector(`input[name="q${i}"]:checked`);
+      const answer = sel ? sel.value : null;
+      mcAnswers[i] = answer;
+      if (answer === mcAnswerKey[i]) mcScore++;
+    }
+    
+    // Gather TF answers
+    const tfAnswers = {};
+    let tfScore = 0;
+    for (let num = 16; num <= 25; num++) {
+      const answer = tfState[num];
+      tfAnswers[num] = answer;
+      if (answer === tfAnswerKey[num]) tfScore++;
+    }
+    
+    // Gather Matching answers
+    const matchAnswers = {};
+    let matchScore = 0;
+    ['m1','m2','m3','m4','m5'].forEach(id => {
+      const answer = document.getElementById(id).value;
+      matchAnswers[id] = answer;
+      if (answer === matchAnswerKey[id]) matchScore++;
+    });
+    
+    const sectionAScore = mcScore + tfScore + matchScore;
+    
+    // Gather essays
+    const essays = {};
+    for (let i = 31; i <= 43; i++) {
+      const el = document.getElementById(`q${i}`);
+      if (el) essays[`q${i}`] = el.value.trim();
+    }
+    
+    // Gather scenario sub-parts
+    ['q38a','q38b','q39a','q39b','q40a','q40b','q41a','q41b','q41c','q42a','q42b','q42c'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) essays[id] = el.value.trim();
+    });
+    
+    // Create submission
+    const submission = {
+      id: Date.now().toString(),
+      name: name,
+      date: new Date().toISOString(),
+      mcq_answers: mcAnswers,
+      tf_answers: tfAnswers,
+      essays: essays,
+      section_a_score: sectionAScore,
+      section_b_score: null,
+      section_c_score: null,
+      total_score: sectionAScore,
+      grades_by_question: {},
+      feedback: {},
+      graded: false
+    };
+    
+    const { error } = await supabaseClient
+      .from('submissions')
+      .insert([submission]);
+    
+    if (error) throw error;
+    
+    showLoading(false);
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo(0, 0);
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    showLoading(false);
+    btn.textContent = 'Submit Examination';
+    btn.disabled = false;
+    showToast('Submission failed: ' + error.message, 'error');
+  }
+}
+
+// Teacher Login
+function teacherLogin() {
+  const pw = document.getElementById('teacherPassword').value;
+  if (pw === TEACHER_PW) {
+    goTo('screen-instructor');
+    loadSubmissions();
+  } else {
+    showToast('Incorrect password', 'error');
+  }
+}
+
+// Load Submissions
+async function loadSubmissions() {
+  showLoading(true);
+  try {
+    const { data, error } = await supabaseClient
+      .from('submissions')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error) throw error;
+    
+    const container = document.getElementById('submissionsList');
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p style="color: var(--cream); text-align: center; padding: 40px;">No submissions yet.</p>';
+    } else {
+      container.innerHTML = data.map(sub => `
+        <div class="submission-card ${sub.graded ? 'graded' : ''}" onclick="loadGradingPanel('${sub.id}')">
+          <div class="submission-header">
+            <div class="submission-name">${sub.name}</div>
+            <div class="submission-date">${new Date(sub.date).toLocaleString()}</div>
+          </div>
+          <div class="submission-stats">
+            <span>Section A: ${sub.section_a_score}/30</span>
+            ${sub.graded ? `<span>Total: ${sub.total_score}/100</span>` : '<span style="color: var(--gold);">Not graded yet</span>'}
+          </div>
+        </div>
+      `).join('');
+    }
+    showLoading(false);
+  } catch (error) {
+    console.error('Error loading submissions:', error);
+    showLoading(false);
+    showToast('Failed to load submissions', 'error');
+  }
+}
+
+// Load Grading Panel
+async function loadGradingPanel(submissionId) {
+  showLoading(true);
+  try {
+    const { data, error } = await supabaseClient
+      .from('submissions')
+      .select('*')
+      .eq('id', submissionId)
+      .single();
+    
+    if (error) throw error;
+    
+    goTo('screen-grading');
+    
+    const container = document.getElementById('gradingContent');
+    
+    let html = `
+      <div class="grading-panel">
+        <div class="grading-header">
+          <div class="student-info">
+            <div class="student-name">${data.name}</div>
+            <div class="student-date">${new Date(data.date).toLocaleString()}</div>
+          </div>
+        </div>
+        
+        <h3 style="font-family: 'Jost', sans-serif; color: var(--text); margin: 24px 0 16px;">Section A — Objective (Auto-Scored)</h3>
+        <div style="background: white; padding: 20px; border-radius: 4px; margin-bottom: 24px;">
+          <strong>Score: ${data.section_a_score}/30</strong>
+          
+          <h4 style="margin-top: 20px; margin-bottom: 12px;">Multiple Choice:</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+    `;
+    
+    for (let i = 1; i <= 15; i++) {
+      const answer = data.mcq_answers[i];
+      const correct = mcAnswerKey[i];
+      const isCorrect = answer === correct;
+      html += `<div style="padding: 8px; background: ${isCorrect ? '#d4edda' : '#f8d7da'}; border-radius: 4px; text-align: center;">
+        <strong>Q${i}:</strong> ${answer || '—'} ${isCorrect ? '✓' : '✗ (' + correct + ')'}
+      </div>`;
+    }
+    
+    html += `</div>
+      <h4 style="margin-top: 20px; margin-bottom: 12px;">True/False:</h4>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+    `;
+    
+    for (let num = 16; num <= 25; num++) {
+      const answer = data.tf_answers[num];
+      const correct = tfAnswerKey[num];
+      const isCorrect = answer === correct;
+      const answerText = answer === null ? '—' : (answer ? 'TRUE' : 'FALSE');
+      const correctText = correct ? 'TRUE' : 'FALSE';
+      html += `<div style="padding: 8px; background: ${isCorrect ? '#d4edda' : '#f8d7da'}; border-radius: 4px; text-align: center;">
+        <strong>Q${num}:</strong> ${answerText} ${isCorrect ? '✓' : '✗ (' + correctText + ')'}
+      </div>`;
+    }
+    
+    html += `</div>
+      <h4 style="margin-top: 20px; margin-bottom: 12px;">Matching:</h4>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;">
+    `;
+    
+    ['m1','m2','m3','m4','m5'].forEach((id, idx) => {
+      const answer = data.essays[id] || '';
+      const correct = matchAnswerKey[id];
+      const isCorrect = answer === correct;
+      html += `<div style="padding: 8px; background: ${isCorrect ? '#d4edda' : '#f8d7da'}; border-radius: 4px; text-align: center;">
+        <strong>Q${26+idx}:</strong> ${answer || '—'} ${isCorrect ? '✓' : '✗ (' + correct + ')'}
+      </div>`;
+    });
+    
+    html += `</div></div>`;
+    
+    // Section B & C - Manually graded
+    const questions = [
+      { id: 'q31', label: 'Q31 — General vs Special Revelation (4 marks)', max: 4 },
+      { id: 'q32', label: 'Q32 — Verbal Plenary Inspiration (4 marks)', max: 4 },
+      { id: 'q33', label: 'Q33 — Inerrancy (4 marks)', max: 4 },
+      { id: 'q34', label: 'Q34 — Closed Canon (4 marks)', max: 4 },
+      { id: 'q35', label: 'Q35 — Church Recognized Scripture (4 marks)', max: 4 },
+      { id: 'q36', label: 'Q36 — Essay: Sufficiency & Authority (10 marks)', max: 10 },
+      { id: 'q37', label: 'Q37 — Essay: Divine Revelation Foundation (10 marks)', max: 10 },
+      { id: 'q38', label: 'Q38 — Scenario: Personal Revelation (5 marks)', max: 5, parts: ['q38a', 'q38b'] },
+      { id: 'q39', label: 'Q39 — Scenario: New Gospel (5 marks)', max: 5, parts: ['q39a', 'q39b'] },
+      { id: 'q40', label: 'Q40 — Scenario: Canon Challenge (5 marks)', max: 5, parts: ['q40a', 'q40b'] },
+      { id: 'q41', label: 'Q41 — Case Study: Doctrinal Issues (6 marks)', max: 6, parts: ['q41a', 'q41b', 'q41c'] },
+      { id: 'q42', label: 'Q42 — Case Study: Scripture References (6 marks)', max: 6, parts: ['q42a', 'q42b', 'q42c'] },
+      { id: 'q43', label: 'Q43 — Personal Reflection (3 marks)', max: 3 }
+    ];
+    
+    html += `<h3 style="font-family: 'Jost', sans-serif; color: var(--text); margin: 24px 0 16px;">Sections B & C — Manual Grading</h3>`;
+    
+    questions.forEach(q => {
+      const currentScore = data.grades_by_question[q.id] || 0;
+      const currentFeedback = data.feedback[q.id] || '';
+      
+      html += `
+        <div class="grading-panel" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <strong style="font-family: 'Jost', sans-serif; color: var(--text);">${q.label}</strong>
+            <div class="score-input-group">
+              <label>Score:</label>
+              <input type="number" class="score-input" id="score_${q.id}" min="0" max="${q.max}" value="${currentScore}">
+              <span>/ ${q.max}</span>
+            </div>
+          </div>
+      `;
+      
+      if (q.parts) {
+        q.parts.forEach((partId, idx) => {
+          const answer = data.essays[partId] || '(No answer)';
+          html += `
+            <div style="margin-bottom: 12px;">
+              <div style="font-size: 13px; color: var(--muted); margin-bottom: 4px;"><strong>Part ${idx + 1}:</strong></div>
+              <div class="answer-display">${answer}</div>
+            </div>
+          `;
+        });
+      } else {
+        const answer = data.essays[q.id] || '(No answer)';
+        html += `<div class="answer-display">${answer}</div>`;
+      }
+      
+      html += `
+          <textarea class="feedback-input" id="feedback_${q.id}" placeholder="Instructor feedback (optional)...">${currentFeedback}</textarea>
+        </div>
+      `;
+    });
+    
+    html += `
+      <div style="text-align: center; margin-top: 32px;">
+        <button class="btn-save-grades" onclick="saveGrades('${submissionId}')">Save Grades & Publish</button>
+      </div>
+    `;
+    
+    container.innerHTML = html;
+    showLoading(false);
+    
+  } catch (error) {
+    console.error('Error loading grading panel:', error);
+    showLoading(false);
+    showToast('Failed to load grading panel', 'error');
+  }
+}
+
+// Save Grades
+async function saveGrades(submissionId) {
+  showLoading(true);
+  
+  const questions = [
+    'q31', 'q32', 'q33', 'q34', 'q35', 'q36', 'q37',
+    'q38', 'q39', 'q40', 'q41', 'q42', 'q43'
+  ];
+  
+  const grades = {};
+  const feedback = {};
+  let sectionBCScore = 0;
+  
+  questions.forEach(qid => {
+    const scoreEl = document.getElementById(`score_${qid}`);
+    const feedbackEl = document.getElementById(`feedback_${qid}`);
+    if (scoreEl) {
+      const score = parseInt(scoreEl.value) || 0;
+      grades[qid] = score;
+      sectionBCScore += score;
+    }
+    if (feedbackEl) {
+      feedback[qid] = feedbackEl.value.trim();
+    }
+  });
+  
+  try {
+    const { data: current, error: fetchError } = await supabaseClient
+      .from('submissions')
+      .select('section_a_score')
+      .eq('id', submissionId)
+      .single();
+    
+    if (fetchError) throw fetchError;
+    
+    const totalScore = current.section_a_score + sectionBCScore;
+    
+    const { error } = await supabaseClient
+      .from('submissions')
+      .update({
+        grades_by_question: grades,
+        feedback: feedback,
+        section_b_score: sectionBCScore,
+        total_score: totalScore,
+        graded: true
+      })
+      .eq('id', submissionId);
+    
+    if (error) throw error;
+    
+    showLoading(false);
+    showToast('Grades saved successfully!', 'success');
+    setTimeout(() => {
+      goTo('screen-instructor');
+      loadSubmissions();
+    }, 1500);
+    
+  } catch (error) {
+    console.error('Error saving grades:', error);
+    showLoading(false);
+    showToast('Failed to save grades', 'error');
+  }
+}
+
+// Load Results
+async function loadResults() {
+  const name = document.getElementById('resultsName').value.trim();
+  if (!name) {
+    showToast('Please enter your name', 'error');
+    return;
+  }
+  
+  showLoading(true);
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('submissions')
+      .select('*')
+      .ilike('name', name)
+      .single();
+    
+    if (error || !data) {
+      showLoading(false);
+      showToast('No results found for this name', 'error');
+      return;
+    }
+    
+    if (!data.graded) {
+      showLoading(false);
+      showToast('Your exam has been submitted but not yet graded', 'error');
+      return;
+    }
+    
+    goTo('screen-results-display');
+    
+    const grade = data.total_score >= 70 ? 'A' : data.total_score >= 60 ? 'B' : data.total_score >= 50 ? 'C' : 'F';
+    
+    let html = `
+      <div class="results-card">
+        <div class="results-header">
+          <div class="results-name">${data.name}</div>
+          <div class="results-score">${data.total_score}/100</div>
+          <div class="results-grade">Grade: ${grade}</div>
+        </div>
+        
+        <div class="results-breakdown">
+          <div class="score-row">
+            <span class="score-label">Section A (Objective)</span>
+            <span class="score-value">${data.section_a_score}/30</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Sections B & C (Theory & Application)</span>
+            <span class="score-value">${data.section_b_score || 0}/70</span>
+          </div>
+        </div>
+    `;
+    
+    // Show feedback if any
+    if (data.feedback && Object.keys(data.feedback).length > 0) {
+      html += `
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--border);">
+          <h3 style="font-family: 'Jost', sans-serif; font-size: 16px; margin-bottom: 16px;">Instructor Feedback</h3>
+      `;
+      
+      Object.entries(data.feedback).forEach(([qid, fb]) => {
+        if (fb) {
+          html += `
+            <div style="margin-bottom: 16px;">
+              <strong style="font-size: 13px; color: var(--muted);">${qid.toUpperCase()}:</strong>
+              <p style="margin-top: 4px; font-size: 14px; line-height: 1.6;">${fb}</p>
+            </div>
+          `;
+        }
+      });
+      
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    
+    document.getElementById('resultsContent').innerHTML = html;
+    showLoading(false);
+    
+  } catch (error) {
+    console.error('Error loading results:', error);
+    showLoading(false);
+    showToast('Failed to load results', 'error');
+  }
+}
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('Systematic Theology Exam Portal Ready');
+});
+</script>
+</body>
+</html>
